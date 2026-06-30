@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
+
+import { FiSearch } from "react-icons/fi";
 
 import NoteForm from "./components/NoteForm";
 import NoteList from "./components/NoteList";
@@ -7,62 +9,181 @@ import NoteList from "./components/NoteList";
 import {
     getNotes,
     createNote,
+    updateNote,
     deleteNote
 } from "./service/NoteService";
 
-function App() {
+function App(){
 
-    const [notes, setNotes] = useState([]);
+    const [notes,setNotes]=useState([]);
+    const [selectedNote,setSelectedNote]=useState(null);
+    const [search,setSearch]=useState("");
+    const [isCreating, setIsCreating] = useState(false);
 
-    const loadNotes = async () => {
-        try {
-            const response = await getNotes();
+    const handleNewNote = () => {
+        setSelectedNote(null);
+        setIsCreating(true);
+    };
+
+    const loadNotes=async()=>{
+
+        try{
+
+            const response=await getNotes();
+
             setNotes(response.data);
-        } catch (error) {
-            console.error(error);
+
+            if(selectedNote){
+
+                const updated=response.data.find(
+                    note=>note.id===selectedNote.id
+                );
+
+                setSelectedNote(updated||null);
+
+            }
+
         }
+        catch(error){
+
+            console.error(error);
+
+        }
+
     };
 
-    useEffect(() => {
+    useEffect(()=>{
+
         loadNotes();
-    }, []);
 
-    const handleAddNote = async (note) => {
+    },[]);
 
-        try {
-            await createNote(note);
-            loadNotes();
-        } catch (error) {
-            console.error(error);
-        }
+    const filteredNotes=useMemo(()=>{
+
+        return notes.filter(note=>
+
+            note.title
+                .toLowerCase()
+                .includes(search.toLowerCase())
+
+            ||
+
+            note.content
+                .toLowerCase()
+                .includes(search.toLowerCase())
+
+        );
+
+    },[notes,search]);
+
+    const handleCreate=async(note)=>{
+
+        await createNote(note);
+
+        loadNotes();
+
     };
 
-    const handleDelete = async (id) => {
+    const handleUpdate=async(note)=>{
 
-        try {
-            await deleteNote(id);
-            loadNotes();
-        } catch (error) {
-            console.error(error);
-        }
+        await updateNote(note.id,note);
+
+        loadNotes();
+
     };
 
-    return (
+    const handleDelete=async(id)=>{
+
+        await deleteNote(id);
+
+        setSelectedNote(null);
+
+        loadNotes();
+
+    };
+
+    return(
+
         <div className="app">
 
-            <h1>Notes App</h1>
+            <aside className="sidebar">
 
-            <NoteForm
-                onAddNote={handleAddNote}
-            />
+                <div className="sidebar-header">
 
-            <NoteList
-                notes={notes}
-                onDelete={handleDelete}
-            />
+                    <div className="logo">
+
+    <div className="logo-icon">
+        📝
+    </div>
+
+    <div>
+
+        <h2>My Notes</h2>
+
+    </div>
+
+</div>
+
+                    <button
+                        className="new-btn"
+                        onClick={()=>setSelectedNote(null)}
+                    >
+                        + New Note
+                    </button>
+
+                    <div className="search-box">
+
+                        <FiSearch/>
+
+                        <input
+                            type="text"
+                            placeholder="Search notes..."
+                            value={search}
+                            onChange={(e)=>setSearch(e.target.value)}
+                        />
+
+                    </div>
+
+                    <div className="note-count">
+
+                        {filteredNotes.length} Notes
+
+                    </div>
+
+                </div>
+
+                <NoteList
+
+                    notes={filteredNotes}
+
+                    selectedNote={selectedNote}
+
+                    onSelect={setSelectedNote}
+
+                />
+
+            </aside>
+
+            <main className="editor">
+
+                <NoteForm
+
+                    selectedNote={selectedNote}
+
+                    onCreate={handleCreate}
+
+                    onUpdate={handleUpdate}
+
+                    onDelete={handleDelete}
+
+                />
+
+            </main>
 
         </div>
+
     );
+
 }
 
 export default App;
