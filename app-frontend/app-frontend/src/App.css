@@ -35,6 +35,50 @@ body{
 
 }
 
+/* ==========================================
+   WELCOME SCREEN
+========================================== */
+
+.welcome-screen{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:100%;
+
+    text-align:center;
+
+    color:#64748B;
+
+}
+
+.welcome-screen h1{
+
+    font-size:56px;
+
+    font-weight:700;
+
+    color:#0F172A;
+
+    margin-bottom:18px;
+
+}
+
+.welcome-screen p{
+
+    max-width:500px;
+
+    font-size:18px;
+
+    line-height:1.7;
+
+}
+
 /* ==========================================================
    MAIN LAYOUT
 ========================================================== */

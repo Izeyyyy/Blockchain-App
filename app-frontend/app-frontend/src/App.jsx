@@ -126,7 +126,7 @@ function App(){
 
                     <button
                         className="new-btn"
-                        onClick={()=>setSelectedNote(null)}
+                        onClick={handleNewNote}
                     >
                         + New Note
                     </button>
@@ -158,7 +158,10 @@ function App(){
 
                     selectedNote={selectedNote}
 
-                    onSelect={setSelectedNote}
+                    onSelect={(note) => {
+                        setSelectedNote(note);
+                        setIsCreating(false);
+                    }}
 
                 />
 
@@ -169,6 +172,7 @@ function App(){
                 <NoteForm
 
                     selectedNote={selectedNote}
+                    isCreating={isCreating}
 
                     onCreate={handleCreate}
 
